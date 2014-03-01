@@ -1,5 +1,12 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  #content
+    header
+      h3 WELCOME
+
+    div
+      p Please log in with facebook or twitter to continue.
+      div
+        a(href="")
+          img(src="https://dev.twitter.com/sites/default/files/images_documentation/sign-in-with-twitter-gray.png", alt="Sign in with Twitter", class="twitter-login")

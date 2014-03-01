@@ -11,6 +11,20 @@ var path = require('path');
 
 var app = express();
 
+
+// models
+var Membership = require('./models/membership.js');
+var User = require('./models/user.js');
+
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/' + app.get('env'));
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+  //do stuffs with db
+  console.log('db connection a go')
+});
+
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));

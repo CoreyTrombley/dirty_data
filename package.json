@@ -9,6 +9,8 @@
     "express": "3.4.x",
     "jade": "*",
     "less-middleware": "*",
-    "mongoose": "3.8.x"
+    "mongoose": "3.8.x",
+    "passport": "0.2.x",
+    "passport-local": "0.1.6"
   }
 }

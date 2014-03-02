@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  #content
+    header
+      h3 #{user.facebook.username}'s Dashboard
+
+    div
+      for v,k in user.facebook
+        p #{k} : #{v}

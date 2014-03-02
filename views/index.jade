@@ -4,9 +4,13 @@ block content
   #content
     header
       h3 WELCOME
+      if (!user)
+        p Welcome! Please log in.
+      else
+        p Hello, #{user.facebook.username}
+
 
     div
-      p Please log in with facebook or twitter to continue.
+      p Please log in to continue.
       div
-        a(href="")
-          img(src="https://dev.twitter.com/sites/default/files/images_documentation/sign-in-with-twitter-gray.png", alt="Sign in with Twitter", class="twitter-login")
+        <a href="/auth/facebook">Login with Facebook</a>

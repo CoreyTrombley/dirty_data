@@ -4,5 +4,13 @@
  */
 
 exports.index = function(req, res){
-  res.render('index', { title: 'Express' });
+  res.render('index', { user: req.user });
 };
+
+exports.login = function (req, res) {
+  res.render('login');
+}
+
+exports.dashboard = function (req, res) {
+  res.render('dashboard', { user: req.user });
+}

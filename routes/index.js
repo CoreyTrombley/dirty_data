@@ -12,5 +12,8 @@ exports.login = function (req, res) {
 }
 
 exports.dashboard = function (req, res) {
+  var user = req.user
+  console.log(user)
+
   res.render('dashboard', { user: req.user });
 }

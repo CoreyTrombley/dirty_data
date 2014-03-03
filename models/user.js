@@ -10,4 +10,9 @@ var userSchema = new Schema({
   dateAdded: {type: Date, default: Date.now},
 }, { strict: false });
 
+
+userSchema.methods.getOldestFriend = function() {
+  return this.find({ fbFriends: this.fbFriends.first() });
+}
+
 module.exports = mongoose.model('User', userSchema);

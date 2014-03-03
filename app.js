@@ -49,19 +49,24 @@ passport.use(new FacebookStrategy({
       }
       //No user was found... so create a new user with values from Facebook (all the profile. stuff)
       if (!user) {
-        user = new User({
-          name: profile.displayName,
-          username: profile.username,
-          profileUrl: profile.profileUrl,
-          provider: 'facebook',
-          token: accessToken,
-          //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
-          facebook: profile._json
-        });
-        user.save(function(err) {
-          if (err) console.log(err);
-          console.log('making a new user')
-          return done(err, user);
+        var fbapi = require('facebook-api');
+        var client = fbapi.user(accessToken); // do not set an access token
+        client.me.friends(function(err, data, user){
+          user = new User({
+            name: profile.displayName,
+            username: profile.username,
+            profileUrl: profile.profileUrl,
+            provider: 'facebook',
+            token: accessToken,
+            //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
+            facebook: profile._json,
+            fbFriends: data
+          });
+          user.save(function(err) {
+            if (err) console.log(err);
+            console.log('making a new user')
+            return done(err, user);
+          });
         });
       } else {
         //found user. Return
@@ -69,21 +74,6 @@ passport.use(new FacebookStrategy({
         return done(err, user);
       }
     });
-
-    function viewback(err, data, user) {
-      if(err) {
-        console.log("Error: " + JSON.stringify(err));
-      } else {
-        console.log("==============")
-        console.log(data),
-        return data
-      }
-    }
-
-    var fbapi = require('facebook-api');
-    var client = fbapi.user(accessToken); // do not set an access token
-    var data = client.me.friends(viewback);
-
 }));
 
 // all environments

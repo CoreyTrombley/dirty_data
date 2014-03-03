@@ -14,4 +14,11 @@ block content
       p Link :
         a(href="#{user.facebook.link}", target="_blank") #{user.facebook.username}
       p Gender #{user.facebook.gender}
-      p Friend Count #{user.friendCount}
+      p Friend Count #{user.fbFriends.length}
+      p Friend who has used Facebook the longest
+      ul
+        for friend in user.fbFriends
+          li id: #{friend.id} - name: #{friend.name}
+
+
+

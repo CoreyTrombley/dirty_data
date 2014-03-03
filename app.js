@@ -12,10 +12,6 @@ var path = require('path');
 var app = express();
 var config = require('./config');
 
-var passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy;
-
-
 // models
 var User = require('./models/user.js');
 
@@ -46,7 +42,7 @@ passport.use(new FacebookStrategy({
   },
   function(accessToken, refreshToken, profile, done) {
     User.findOne({
-      "providerUserId" : profile.id
+      "facebook.id" : profile.id
     }, function(err, user) {
       if (err) {
         return done(err);
@@ -58,11 +54,10 @@ passport.use(new FacebookStrategy({
           username: profile.username,
           profileUrl: profile.profileUrl,
           provider: 'facebook',
+          token: accessToken,
           //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
           facebook: profile._json
         });
-        friends = user.getFacebookFriends()
-        console.log(friends);
         user.save(function(err) {
           if (err) console.log(err);
           console.log('making a new user')
@@ -74,8 +69,22 @@ passport.use(new FacebookStrategy({
         return done(err, user);
       }
     });
-  }
-));
+
+    function viewback(err, data, user) {
+      if(err) {
+        console.log("Error: " + JSON.stringify(err));
+      } else {
+        console.log("==============")
+        console.log(data),
+        return data
+      }
+    }
+
+    var fbapi = require('facebook-api');
+    var client = fbapi.user(accessToken); // do not set an access token
+    var data = client.me.friends(viewback);
+
+}));
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -103,7 +112,7 @@ if ('development' == app.get('env')) {
 // Redirect the user to Facebook for authentication.  When complete,
 // Facebook will redirect the user back to the application at
 //     /auth/facebook/callback
-app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['user_status', 'user_friends'] }));
+app.get('/auth/facebook', passport.authenticate('facebook'));
 
 // Facebook will redirect the user to this URL after approval.  Finish the
 // authentication process by attempting to obtain an access token.  If

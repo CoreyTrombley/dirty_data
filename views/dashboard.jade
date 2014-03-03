@@ -3,8 +3,15 @@ extends layout
 block content
   #content
     header
-      h3 #{user.facebook.username}'s Dashboard
+      h3 #{user.facebook.name}'s Dashboard
 
     div
       for v,k in user.facebook
         p #{k} : #{v}
+
+    div
+      h4 User Details
+      p Link :
+        a(href="#{user.facebook.link}", target="_blank") #{user.facebook.username}
+      p Gender #{user.facebook.gender}
+      p Friend Count #{user.friendCount}

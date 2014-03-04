@@ -3,22 +3,15 @@ extends layout
 block content
   #content
     header
-      h3 #{user.facebook.name}'s Dashboard
+      h3 #{user.name}'s Dashboard
 
     div
-      for v,k in user.facebook
-        p #{k} : #{v}
-
-    div
-      h4 User Details
-      p Link :
-        a(href="#{user.facebook.link}", target="_blank") #{user.facebook.username}
-      p Gender #{user.facebook.gender}
-      p Friend Count #{user.fbFriends.length}
-      p Friend who has used Facebook the longest
-      ul
-        for friend in user.fbFriends
-          li id: #{friend.id} - name: #{friend.name}
+      for x in user.accounts
+        for v,k in x
+          p #{k}
+            ul
+            for val, k in v
+              li #{k}: #{val}
 
 
 

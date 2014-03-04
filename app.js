@@ -25,7 +25,7 @@ db.once('open', function callback () {
 });
 
 var passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy;
+  , LocalStrategy = require('passport-local').Strategy
   , TwitterStrategy = require('passport-twitter').Strategy
   , FacebookStrategy = require('passport-facebook').Strategy;
 
@@ -59,7 +59,7 @@ passport.use(new FacebookStrategy({
   },
   function(accessToken, refreshToken, profile, done) {
     User.findOne({
-      "accounts[0].id" : profile.id
+      "accounts.facebook.id" : profile.id
     }, function(err, user) {
       if (err) {
         return done(err);
@@ -73,10 +73,9 @@ passport.use(new FacebookStrategy({
             name: profile.displayName,
             username: profile.username,
             fbProfileUrl: profile.profileUrl,
-            provider: 'facebook',
             fbToken: accessToken,
             //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
-            accounts: { facebook:{"profile": profile._json, friends: data}}
+            accounts: [{ facebook:{"profile": profile._json, friends: data}}]
           });
           user.save(function(err) {
             if (err) console.log(err);
@@ -98,7 +97,33 @@ passport.use(new TwitterStrategy({
     callbackURL: "http://localhost:3000/auth/twitter/callback"
   },
   function(token, tokenSecret, profile, done) {
-    console.log(profile);
+    User.findOne({
+      "accounts.twitter.id" : profile.id
+    }, function(err, user) {
+      if (err) {
+        return done(err);
+      }
+      //No user was found... so create a new user with values from Facebook (all the profile. stuff)
+      if (!user) {
+        user = new User({
+          name: profile.displayName,
+          username: profile.username,
+          twitterProfileUrl: profile.profileUrl,
+          twitterToken: token,
+          //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
+          accounts: [{ twitter:{"profile": profile._json}}]
+        });
+        user.save(function(err) {
+          if (err) console.log(err);
+          console.log('making a new user')
+          return done(err, user);
+        });
+      } else {
+        //found user. Return
+        console.log('found the user')
+        return done(err, user);
+      }
+    });
   }
 ));
 
@@ -156,6 +181,7 @@ app.get('/auth/twitter/callback',
 app.get('/', routes.index);
 app.get('/login', routes.login);
 app.get('/dashboard', routes.dashboard);
+app.get('/users', user.findAll);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

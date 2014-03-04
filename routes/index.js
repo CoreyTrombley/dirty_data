@@ -2,6 +2,8 @@
 /*
  * GET home page.
  */
+var path = require('path');
+var User = require(path.join(__dirname, '../models/user.js'));
 
 exports.index = function(req, res){
   res.render('index', { user: req.user });
@@ -12,8 +14,5 @@ exports.login = function (req, res) {
 }
 
 exports.dashboard = function (req, res) {
-  var user = req.user
-  console.log(user)
-
   res.render('dashboard', { user: req.user });
 }

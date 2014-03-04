@@ -25,6 +25,8 @@ db.once('open', function callback () {
 });
 
 var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy;
+  , TwitterStrategy = require('passport-twitter').Strategy
   , FacebookStrategy = require('passport-facebook').Strategy;
 
 passport.serializeUser(function(user, done) {
@@ -35,6 +37,21 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    User.findOne({ username: username }, function(err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+
 passport.use(new FacebookStrategy({
   clientID: config.fb.id,
   clientSecret: config.fb.secret,
@@ -42,7 +59,7 @@ passport.use(new FacebookStrategy({
   },
   function(accessToken, refreshToken, profile, done) {
     User.findOne({
-      "facebook.id" : profile.id
+      "accounts[0].id" : profile.id
     }, function(err, user) {
       if (err) {
         return done(err);
@@ -55,12 +72,11 @@ passport.use(new FacebookStrategy({
           user = new User({
             name: profile.displayName,
             username: profile.username,
-            profileUrl: profile.profileUrl,
+            fbProfileUrl: profile.profileUrl,
             provider: 'facebook',
-            token: accessToken,
+            fbToken: accessToken,
             //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
-            facebook: profile._json,
-            fbFriends: data
+            accounts: { facebook:{"profile": profile._json, friends: data}}
           });
           user.save(function(err) {
             if (err) console.log(err);
@@ -75,6 +91,18 @@ passport.use(new FacebookStrategy({
       }
     });
 }));
+
+passport.use(new TwitterStrategy({
+    consumerKey: config.twitter.key,
+    consumerSecret: config.twitter.secret,
+    callbackURL: "http://localhost:3000/auth/twitter/callback"
+  },
+  function(token, tokenSecret, profile, done) {
+    console.log(profile);
+  }
+));
+
+
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -111,6 +139,19 @@ app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { successRedirect: '/dashboard',
                                       failureRedirect: '/login' }));
+
+// Redirect the user to Twitter for authentication.  When complete, Twitter
+// will redirect the user back to the application at
+//   /auth/twitter/callback
+app.get('/auth/twitter', passport.authenticate('twitter'));
+
+// Twitter will redirect the user to this URL after approval.  Finish the
+// authentication process by attempting to obtain an access token.  If
+// access was granted, the user will be logged in.  Otherwise,
+// authentication has failed.
+app.get('/auth/twitter/callback',
+  passport.authenticate('twitter', { successRedirect: '/dashboard',
+                                     failureRedirect: '/login' }));
 
 app.get('/', routes.index);
 app.get('/login', routes.login);

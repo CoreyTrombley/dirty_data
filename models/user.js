@@ -3,16 +3,14 @@ var mongoose = require('mongoose'),
   ObjectId = Schema.ObjectId;
 
 var userSchema = new Schema({
-  provider:  String,
-  providerUserId:  String,
-  token: String,
+  username: String,
+  email:  String,
+  name:  String,
   userId: {type: ObjectId, ref: 'User'},
   dateAdded: {type: Date, default: Date.now},
+  fbToken: String,
+  twitterToken: String,
+  accounts: []
 }, { strict: false });
-
-
-userSchema.methods.getOldestFriend = function() {
-  return this.find({ fbFriends: this.fbFriends.first() });
-}
 
 module.exports = mongoose.model('User', userSchema);

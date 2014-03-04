@@ -12,6 +12,8 @@
     "mongoose": "3.8.x",
     "passport": "0.2.x",
     "passport-local": "0.1.6",
+    "passport-facebook": "*",
+    "passport-twitter": "*",
     "facebook-api": "0.1.2"
   }
 }

@@ -59,7 +59,7 @@ passport.use(new FacebookStrategy({
   },
   function(accessToken, refreshToken, profile, done) {
     User.findOne({
-      "accounts.facebook.id" : profile.id
+      "facebookId" : profile.id
     }, function(err, user) {
       if (err) {
         return done(err);
@@ -70,12 +70,14 @@ passport.use(new FacebookStrategy({
         var client = fbapi.user(accessToken); // do not set an access token
         client.me.friends(function(err, data, user){
           user = new User({
+            provider: 'facebook',
+            facebookId: profile.id,
             name: profile.displayName,
             username: profile.username,
-            fbProfileUrl: profile.profileUrl,
+            ProfileUrl: profile.profileUrl,
             fbToken: accessToken,
-            //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
-            accounts: [{ facebook:{"profile": profile._json, friends: data}}]
+            gender: profile._json.gender,
+            friendCount: data.length
           });
           user.save(function(err) {
             if (err) console.log(err);
@@ -98,7 +100,7 @@ passport.use(new TwitterStrategy({
   },
   function(token, tokenSecret, profile, done) {
     User.findOne({
-      "accounts.twitter.id" : profile.id
+      "twitterId" : profile.id
     }, function(err, user) {
       if (err) {
         return done(err);
@@ -106,12 +108,18 @@ passport.use(new TwitterStrategy({
       //No user was found... so create a new user with values from Facebook (all the profile. stuff)
       if (!user) {
         user = new User({
+          provider: "twitter",
+          twitterId: profile.id,
           name: profile.displayName,
           username: profile.username,
-          twitterProfileUrl: profile.profileUrl,
+          ProfileUrl: "www.twitter.com/" + profile.username,
           twitterToken: token,
-          //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
-          accounts: [{ twitter:{"profile": profile._json}}]
+          friendCount: profile._json.friends_count,
+          followCount: profile._json.followers_count,
+          ffRatio: profile._json.followers_count / profile._json.friends_count,
+          statusCount: profile._json.statuses_count,
+          twitterJoinDate: profile._json.created_at,
+          location: profile._json.location
         });
         user.save(function(err) {
           if (err) console.log(err);
@@ -162,7 +170,7 @@ app.get('/auth/facebook', passport.authenticate('facebook'));
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
 app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { successRedirect: '/dashboard',
+  passport.authenticate('facebook', { successRedirect: '/users',
                                       failureRedirect: '/login' }));
 
 // Redirect the user to Twitter for authentication.  When complete, Twitter
@@ -175,13 +183,14 @@ app.get('/auth/twitter', passport.authenticate('twitter'));
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
 app.get('/auth/twitter/callback',
-  passport.authenticate('twitter', { successRedirect: '/dashboard',
+  passport.authenticate('twitter', { successRedirect: '/users',
                                      failureRedirect: '/login' }));
 
 app.get('/', routes.index);
 app.get('/login', routes.login);
 app.get('/dashboard', routes.dashboard);
-app.get('/users', user.findAll);
+app.get('/self', user.findSelf);
+app.get('/ff', user.accounts)
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

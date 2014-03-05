@@ -17,3 +17,7 @@ exports.login = function(req, res) {
 exports.dashboard = function(req, res) {
   res.render('dashboard');
 }
+
+exports.range = function (req, res) {
+  res.render('range')
+}

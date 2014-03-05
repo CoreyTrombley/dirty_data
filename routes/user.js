@@ -21,3 +21,13 @@ exports.accounts = function(req, res) {
     res.send(accounts);
   });
 }
+
+
+exports.rangeAccounts = function (req, res) {
+  console.log();
+  User.find()
+      .where("dateAdded").eq(req.body)
+      .exec(function(err, accounts) {
+        res.send(accounts);
+      });
+}

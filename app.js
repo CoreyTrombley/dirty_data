@@ -211,7 +211,9 @@ app.get('/', routes.index);
 app.get('/login', routes.login);
 app.get('/dashboard', routes.dashboard);
 app.get('/self', user.findSelf);
-app.get('/ff', user.accounts)
+app.get('/ff', user.accounts);
+app.get('/range', routes.range)
+app.post('/range', user.rangeAccounts);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

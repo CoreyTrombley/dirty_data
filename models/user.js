@@ -3,14 +3,23 @@ var mongoose = require('mongoose'),
   ObjectId = Schema.ObjectId;
 
 var userSchema = new Schema({
-  username: String,
-  email:  String,
-  name:  String,
   userId: {type: ObjectId, ref: 'User'},
-  dateAdded: {type: Date, default: Date.now},
+  provider: String,
+  name:  String,
+  username: String,
   fbToken: String,
+  gender: String,
   twitterToken: String,
-  accounts: []
+  followCount: Number,
+  friendCount: Number,
+  ffRatio: Number,
+  location: String,
+  statusCount: Number,
+  facebookId: Number,
+  twitterId: Number,
+  twitterJoinDate: Date,
+  dateAdded: {type: Date, default: Date.now}
 }, { strict: false });
 
+userSchema.set('toObject', { getters: true });
 module.exports = mongoose.model('User', userSchema);

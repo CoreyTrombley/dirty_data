@@ -1,17 +1,29 @@
 extends layout
 
+block head
+  script(src="http://d3js.org/d3.v3.min.js" charset="utf-8")
+  script(src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
+  script(src="/javascripts/ratio.js")
+
 block content
   #content
-    header
-      h3 #{user.name}'s Dashboard
+    h2 Dirty Data
 
-    div
-      for x in user.accounts
-        for v,k in x
-          p #{k}
-            ul
-            for val, k in v
-              li #{k}: #{val}
+    div(align="center")
+      button(class="selfData") My Data
+      button(class="SiteWide") Site Wide
+
+    div.circle
+      p site wide follower to following ratio
+      div.ff-ratio
+
+    div.circle
+      p Facebook Gender
+      div.gender
+
+
+    div.scatter-plot
+
 
 
 

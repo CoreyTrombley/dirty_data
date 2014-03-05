@@ -76,7 +76,7 @@ passport.use(new LocalStrategy(
 passport.use(new FacebookStrategy({
   clientID: config.fb.id,
   clientSecret: config.fb.secret,
-  callbackURL: "http://localhost:3000/auth/facebook/callback"
+  callbackURL: "http://dirty-data.herokuapp.com/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
     User.findOne({
@@ -117,7 +117,7 @@ passport.use(new FacebookStrategy({
 passport.use(new TwitterStrategy({
     consumerKey: config.twitter.key,
     consumerSecret: config.twitter.secret,
-    callbackURL: "http://localhost:3000/auth/twitter/callback"
+    callbackURL: "http://dirty-data.herokuapp.com/auth/twitter/callback"
   },
   function(token, tokenSecret, profile, done) {
     User.findOne({

@@ -15,14 +15,35 @@ var config = require('./config');
 // models
 var User = require('./models/user.js');
 
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/' + app.get('env'));
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function callback () {
-  //do stuffs with db
-  console.log('db connection a go')
+var mongoose = require ("mongoose"); // The reason for this demo.
+
+// Here we find an appropriate database to connect to, defaulting to
+// localhost if we don't find one.
+var uristring =
+process.env.MONGOLAB_URI ||
+process.env.MONGOHQ_URL ||
+'mongodb://localhost/' + app.get('env');
+
+// The http server will listen to an appropriate port, or default to
+// port 5000.
+var theport = process.env.PORT || 5000;
+
+// Makes connection asynchronously.  Mongoose will queue up database
+// operations and release them when the connection is complete.
+mongoose.connect(uristring, function (err, res) {
+  if (err) {
+  console.log ('ERROR connecting to: ' + uristring + '. ' + err);
+  } else {
+  console.log ('Succeeded connected to: ' + uristring);
+  }
 });
+
+
+
+
+
+
+
 
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy
@@ -170,7 +191,7 @@ app.get('/auth/facebook', passport.authenticate('facebook'));
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
 app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { successRedirect: '/users',
+  passport.authenticate('facebook', { successRedirect: '/dashboard',
                                       failureRedirect: '/login' }));
 
 // Redirect the user to Twitter for authentication.  When complete, Twitter
@@ -183,7 +204,7 @@ app.get('/auth/twitter', passport.authenticate('twitter'));
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
 app.get('/auth/twitter/callback',
-  passport.authenticate('twitter', { successRedirect: '/users',
+  passport.authenticate('twitter', { successRedirect: '/dashboard',
                                      failureRedirect: '/login' }));
 
 app.get('/', routes.index);
